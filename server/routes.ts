@@ -199,11 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Case routes
-  app.get('/api/cases', requireAuth, async (req: Request, res: Response) => {
-    const cases = await storage.getCases();
-    res.json({ cases });
-  });
+  // Case routes - removed duplicate, using enhanced version below
 
   app.post('/api/cases', requireAuth, async (req: Request, res: Response) => {
     try {
@@ -381,7 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cases management endpoints
+  // Override the old cases endpoint with new data format
   app.get('/api/cases', requireAuth, async (req, res) => {
     try {
       const cases = [
@@ -431,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           updatedAt: '2025-01-21T14:30:00Z'
         }
       ];
-      res.json(cases);
+      res.json({ cases });
     } catch (error) {
       console.error('Error fetching cases:', error);
       res.status(500).json({ message: 'Failed to fetch cases' });

@@ -69,7 +69,7 @@ const CasesManager = () => {
       const response = await fetch('/api/cases');
       if (response.ok) {
         const data = await response.json();
-        setCases(data);
+        setCases(data.cases || []);
       }
     } catch (error) {
       setError('Failed to fetch cases');
