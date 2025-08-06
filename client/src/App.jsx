@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Sidebar from './components/Sidebar/Sidebar';
+import CollapsibleSidebar from './components/Sidebar/CollapsibleSidebar';
+import EnhancedProfile from './components/Profile/EnhancedProfile';
+import CasesManager from './components/Cases/CasesManager';
 import Dashboard from './components/Dashboard/Dashboard';
 import Cases from './components/Cases/Cases';
 import OccurrenceBook from './components/OccurrenceBook/OccurrenceBook';
@@ -119,11 +121,11 @@ const AuthenticatedApp = () => {
       case 'dashboard':
         return <Dashboard onAddCaseClick={handleAddCaseClick} onLicensePlateClick={handleLicensePlateClick} cases={cases} />;
       case 'cases':
-        return <Cases onAddCaseClick={handleAddCaseClick} cases={cases} onUpdateCase={handleUpdateCase} onDeleteCase={handleDeleteCase} />;
+        return <CasesManager />;
       case 'occurrence-book':
         return <OccurrenceBook onAddOBClick={handleAddOBClick} obEntries={obEntries} onUpdateOB={handleUpdateOB} onDeleteOB={handleDeleteOB} />;
       case 'profile':
-        return <Profile onRegisterClick={handleRegisterClick} />;
+        return <EnhancedProfile />;
       case 'admin':
         return user?.role === 'admin' ? <UserManagement onRegisterClick={handleRegisterClick} /> : (
           <div style={{ padding: '30px', color: '#ffffff' }}>
@@ -208,7 +210,7 @@ const AuthenticatedApp = () => {
   // Main authenticated app
   return (
     <div className="app">
-      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+      <CollapsibleSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
       <div className="main-content">
         {renderContent()}
       </div>

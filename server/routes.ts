@@ -330,6 +330,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Officers management endpoints
+  app.get('/api/officers', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const officers = await storage.getAllUsers();
+      res.json(officers);
+    } catch (error) {
+      console.error('Error fetching officers:', error);
+      res.status(500).json({ message: 'Failed to fetch officers' });
+    }
+  });
+
+  app.post('/api/officers', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const officerData = req.body;
+      const newOfficer = await storage.createUser({
+        ...officerData,
+        username: officerData.badgeNumber || `officer_${Date.now()}`,
+        password: 'changeme123',
+        role: 'user',
+        isActive: true
+      });
+      res.status(201).json(newOfficer);
+    } catch (error) {
+      console.error('Error creating officer:', error);
+      res.status(500).json({ message: 'Failed to create officer' });
+    }
+  });
+
+  app.put('/api/officers/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const officerData = req.body;
+      const updatedOfficer = await storage.updateUser(parseInt(id), officerData);
+      res.json(updatedOfficer);
+    } catch (error) {
+      console.error('Error updating officer:', error);
+      res.status(500).json({ message: 'Failed to update officer' });
+    }
+  });
+
+  app.delete('/api/officers/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteUser(parseInt(id));
+      res.json({ message: 'Officer deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting officer:', error);
+      res.status(500).json({ message: 'Failed to delete officer' });
+    }
+  });
+
+  // Cases management endpoints
+  app.get('/api/cases', requireAuth, async (req, res) => {
+    try {
+      const cases = [
+        {
+          id: 1,
+          caseNumber: 'CASE-2025-001',
+          title: 'Burglary at Main Street Store',
+          description: 'Break-in occurred at electronics store on Main Street. Several items reported missing including laptops and phones.',
+          type: 'Burglary',
+          priority: 'High',
+          status: 'In Progress',
+          incidentDate: '2025-01-20T10:30:00Z',
+          reportedDate: '2025-01-20T11:00:00Z',
+          location: 'Main Street Electronics Store, Downtown',
+          assignedOfficer: 'Officer Johnson',
+          createdAt: '2025-01-20T11:00:00Z',
+          updatedAt: '2025-01-21T09:15:00Z'
+        },
+        {
+          id: 2,
+          caseNumber: 'CASE-2025-002',
+          title: 'Traffic Accident Investigation',
+          description: 'Multi-vehicle accident at highway intersection. Minor injuries reported.',
+          type: 'Traffic Violation',
+          priority: 'Medium',
+          status: 'Open',
+          incidentDate: '2025-01-21T15:45:00Z',
+          reportedDate: '2025-01-21T16:00:00Z',
+          location: 'Highway 101 & Oak Avenue Intersection',
+          assignedOfficer: 'Officer Davis',
+          createdAt: '2025-01-21T16:00:00Z',
+          updatedAt: '2025-01-21T16:00:00Z'
+        },
+        {
+          id: 3,
+          caseNumber: 'CASE-2025-003',
+          title: 'Missing Person Report',
+          description: 'Adult male reported missing by family. Last seen at work on Friday evening.',
+          type: 'Missing Person',
+          priority: 'Critical',
+          status: 'Open',
+          incidentDate: '2025-01-19T18:00:00Z',
+          reportedDate: '2025-01-20T08:00:00Z',
+          location: 'Last seen at Downtown Office Building',
+          assignedOfficer: 'Detective Smith',
+          createdAt: '2025-01-20T08:00:00Z',
+          updatedAt: '2025-01-21T14:30:00Z'
+        }
+      ];
+      res.json(cases);
+    } catch (error) {
+      console.error('Error fetching cases:', error);
+      res.status(500).json({ message: 'Failed to fetch cases' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -73,6 +73,8 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setUser(null);
       setIsAuthenticated(false);
+      // Redirect to login page after logout
+      window.location.href = '/';
     }
   };
 
