@@ -14,6 +14,7 @@ Preferred communication style: Simple, everyday language.
 - **Styling**: Tailwind CSS with custom CSS variables for theming and dark mode support
 - **State Management**: TanStack React Query for server state management and caching
 - **Form Handling**: React Hook Form with Zod validation for type-safe form management
+- **Navigation**: Browser history-aware navigation with proper back button support for case management
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js framework
@@ -22,6 +23,13 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful endpoints with middleware-based authentication and authorization
 - **Development**: Hot module replacement with Vite integration for rapid development
 
+## Enhanced Features (January 2025)
+- **Collapsible Sidebar**: Three-dot expandable navigation with user session persistence
+- **Role-Based Profile Management**: Admin-only access to officer management with full CRUD operations
+- **Advanced Search & Filtering**: Multi-criteria search by departments, badge numbers, names, and specializations
+- **Case Navigation**: Browser-aware case management with proper back button functionality
+- **Police-Specific Data Models**: Comprehensive officer profiles with department assignments and specializations
+
 ## Database Architecture
 - **Database**: PostgreSQL with Neon serverless integration
 - **ORM**: Drizzle ORM for type-safe database operations and migrations
@@ -29,10 +37,11 @@ Preferred communication style: Simple, everyday language.
 - **Authentication**: Session-based authentication with role-based access control (admin/user roles)
 
 ## Security Features
-- **Authentication**: Session-based authentication with secure HTTP-only cookies
-- **Authorization**: Role-based access control with admin and user permissions
+- **Authentication**: Session-based authentication with secure HTTP-only cookies and automatic logout redirection
+- **Authorization**: Role-based access control with admin and user permissions, including profile management restrictions
 - **Password Management**: Secure password reset functionality with time-limited tokens
 - **Input Validation**: Zod schema validation on both frontend and backend
+- **Admin Access Control**: Profile management section restricted to administrators only
 
 ## Project Structure
 - **Monorepo Layout**: Client, server, and shared code in separate directories
