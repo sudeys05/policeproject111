@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard';
 import Cases from './components/Cases/Cases';
 import OccurrenceBook from './components/OccurrenceBook/OccurrenceBook';
+import Profile from './components/Profile/Profile';
+import UserManagement from './components/UserManagement/UserManagement';
 import AddCaseModal from './components/AddCaseModal/AddCaseModal';
 import AddOBModal from './components/AddOBModal/AddOBModal';
 import LicensePlateModal from './components/LicensePlateModal/LicensePlateModal';
+import LoginModal from './components/Auth/LoginModal';
+import RegisterModal from './components/Auth/RegisterModal';
+import ForgotPasswordModal from './components/Auth/ForgotPasswordModal';
 import './App.css';
 
-function App() {
+const AuthenticatedApp = () => {
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isAddCaseModalOpen, setIsAddCaseModalOpen] = useState(false);
   const [isAddOBModalOpen, setIsAddOBModalOpen] = useState(false);
   const [isLicensePlateModalOpen, setIsLicensePlateModalOpen] = useState(false);
-  const [cases, setCases] = useState([
-    { id: 'CASE-2024-001', title: 'Burglary at 5th Ave', officer: 'Officer Jane', status: 'In Progress', priority: 'High', lastUpdate: '2025-07-28' },
-    { id: 'CASE-2024-002', title: 'Missing Person', officer: 'Officer Lee', status: 'Open', priority: 'Medium', lastUpdate: '2025-07-27' },
-    { id: 'CASE-2024-003', title: 'Assault Investigation', officer: 'Officer Smith', status: 'Closed', priority: 'Low', lastUpdate: '2025-07-27' },
-    { id: 'CASE-2024-004', title: 'Vandalism Report', officer: 'Officer Kim', status: 'Closed', priority: 'Low', lastUpdate: '2025-07-26' },
-    { id: 'CASE-2024-005', title: 'Robbery Case', officer: 'Officer Patel', status: 'Closed', priority: 'Low', lastUpdate: '2025-07-25' }
-  ]);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [cases, setCases] = useState([]);
 
   const [licensePlates, setLicensePlates] = useState([
     {
@@ -89,6 +93,27 @@ function App() {
     setIsLicensePlateModalOpen(true);
   };
 
+  // Authentication modal handlers
+  const handleSwitchToRegister = () => {
+    setIsLoginModalOpen(false);
+    setIsRegisterModalOpen(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsRegisterModalOpen(false);
+    setIsForgotPasswordModalOpen(false);
+    setIsLoginModalOpen(true);
+  };
+
+  const handleSwitchToForgotPassword = () => {
+    setIsLoginModalOpen(false);
+    setIsForgotPasswordModalOpen(true);
+  };
+
+  const handleRegisterClick = () => {
+    setIsRegisterModalOpen(true);
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -98,6 +123,14 @@ function App() {
       case 'occurrence-book':
         return <OccurrenceBook onAddOBClick={handleAddOBClick} obEntries={obEntries} onUpdateOB={handleUpdateOB} onDeleteOB={handleDeleteOB} />;
       case 'profile':
+        return <Profile onRegisterClick={handleRegisterClick} />;
+      case 'admin':
+        return user?.role === 'admin' ? <UserManagement onRegisterClick={handleRegisterClick} /> : (
+          <div style={{ padding: '30px', color: '#ffffff' }}>
+            <h1>Access Denied</h1>
+            <p>You don't have permission to access this section.</p>
+          </div>
+        );
       case 'message':
       case 'evidence':
       case 'media':
@@ -110,16 +143,76 @@ function App() {
           </div>
         );
       default:
-        return <Dashboard />;
+        return <Dashboard onAddCaseClick={handleAddCaseClick} onLicensePlateClick={handleLicensePlateClick} cases={cases} />;
     }
   };
 
+  // Show loading screen
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-content">
+          <div className="loading-spinner"></div>
+          <h2>Loading Police System...</h2>
+          <p>Authenticating user session</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="login-screen">
+        <div className="login-content">
+          <div className="login-header">
+            <div className="login-logo">
+              <div className="logo-badge">🛡️</div>
+              <h1>Police Management System</h1>
+              <p>Secure Access Portal</p>
+            </div>
+          </div>
+          
+          <div className="login-form">
+            <button 
+              className="login-btn" 
+              onClick={() => setIsLoginModalOpen(true)}
+            >
+              Sign In to Continue
+            </button>
+            <p className="login-help">
+              Use your assigned username and password to access the system.
+            </p>
+            <p className="default-credentials">
+              <strong>Default Admin:</strong> admin / admin123
+            </p>
+          </div>
+        </div>
+
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onSwitchToRegister={handleSwitchToRegister}
+          onSwitchToForgotPassword={handleSwitchToForgotPassword}
+        />
+
+        <ForgotPasswordModal
+          isOpen={isForgotPasswordModalOpen}
+          onClose={() => setIsForgotPasswordModalOpen(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      </div>
+    );
+  }
+
+  // Main authenticated app
   return (
     <div className="app">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
       <div className="main-content">
         {renderContent()}
       </div>
+      
       <AddCaseModal 
         isOpen={isAddCaseModalOpen}
         onClose={() => setIsAddCaseModalOpen(false)}
@@ -137,7 +230,23 @@ function App() {
         onSearchPlate={() => {}}
         plates={licensePlates}
       />
+
+      {user?.role === 'admin' && (
+        <RegisterModal
+          isOpen={isRegisterModalOpen}
+          onClose={() => setIsRegisterModalOpen(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
     </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
   );
 }
 
